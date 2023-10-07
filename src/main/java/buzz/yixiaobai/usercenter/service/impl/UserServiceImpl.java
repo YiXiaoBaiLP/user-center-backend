@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
+    static final String SALT = "xiaoliu";
     @Autowired
     private UserMapper userMapper;
 
@@ -44,14 +45,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         long count = userMapper.selectCount(queryWrapper);
         if(count>0) return -1;
         // 2. 加密
-        final String SALT = "xiaoliu";
+        // 加密盐
         String encryptPassword = DigestUtil.md5Hex((SALT + userPassword).getBytes());
         // 3. 输入数据
         User user = new User();
         user.setUserAccount(userAccount);
+        // 保存加密后的密码
         user.setUserPassword(encryptPassword);
+        // 保存数据
         boolean saveResult = this.save(user);
         if(!saveResult) return -1;
+        // 返回添加的用户ID
         return user.getId();
     }
 }

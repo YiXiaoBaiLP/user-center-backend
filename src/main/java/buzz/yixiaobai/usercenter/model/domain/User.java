@@ -13,14 +13,20 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
+ * 用户实体类
+ * @Date 2023年10月7日 22点46分
  * @TableName user
+ * @author yixiaobai
  */
 @Data
 @TableName(value ="user")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+
+    @TableField(exist = false)
+    private static final long serialVersionUID = 1L;
+
     /**
      * 主键ID
      */
@@ -96,6 +102,4 @@ public class User implements Serializable {
     @TableLogic
     private Integer isDelete;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }
