@@ -36,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 账户不能包含特殊字符
         String validPattern = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
-        if(!matcher.find()) return -1;
+        if(matcher.find()) return -1;
         // 密码和校验密码是否相同
         if(StringUtils.equals(userPassword, checkPassword))return -1;
         // 账户不能重复
@@ -59,7 +59,3 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return user.getId();
     }
 }
-
-
-
-
