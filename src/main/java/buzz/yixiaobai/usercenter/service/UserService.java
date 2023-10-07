@@ -3,6 +3,7 @@ package buzz.yixiaobai.usercenter.service;
 
 import buzz.yixiaobai.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 用户服务
@@ -21,4 +22,13 @@ public interface UserService extends IService<User> {
      * @return 新用户ID
      */
     long userRegister(String userAccount, String userPassword, String checkPassword);
+
+    /**
+     * 登录
+     * @param userAccount 用户名
+     * @param userPassword 用户密码
+     * @param request request 请求信息
+     * @return 用户信息
+     */
+    User userLogin(String userAccount, String userPassword, HttpServletRequest request);
 }
