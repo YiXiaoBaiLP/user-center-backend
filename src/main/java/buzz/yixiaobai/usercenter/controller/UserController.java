@@ -8,10 +8,15 @@ import cn.hutool.core.util.ObjectUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static buzz.yixiaobai.usercenter.constant.UserConstant.ADMIN_ROLE;
+import static buzz.yixiaobai.usercenter.constant.UserConstant.USER_LOGIN_STATE;
+
 
 /**
  * 用户接口
@@ -19,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2023/10/07 23:45:42
  */
 @RestController
-@RequestMapping
+@RequestMapping("/user")
 public class UserController {
 
     @Resource
@@ -54,5 +59,42 @@ public class UserController {
         if(ObjectUtil.isEmpty(user))
             return null;
         return user;
+    }
+
+    /**
+     * 查询用户
+     * @param username 用户名称
+     * @return 用户集合
+     */
+    @GetMapping("/search")
+    public List<User> searchUserList(String username, HttpServletRequest request) {
+        if(this.isAdmin(request)) {
+            return new ArrayList<>();
+        }
+        return userService.searchUserList(username);
+    }
+
+    /**
+     * 根据用户id来删除用户信息
+     *
+     * @param userId 用户id
+     * @return 是否删除成功
+     */
+    @DeleteMapping
+    public boolean deleteUser(@RequestBody Long userId, HttpServletRequest request){
+        if(this.isAdmin(request)) {
+            return false;
+        }
+        return userService.deleteUserById(userId);
+    }
+
+    /**
+     * 判断当前登录用户是否为管理员
+     * @param request request请求信息
+     * @return 是否为管理员
+     */
+    private boolean isAdmin(HttpServletRequest request){
+        User attribute = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        return ObjectUtil.isEmpty(attribute) || Objects.equals(attribute.getUserRole(), ADMIN_ROLE);
     }
 }

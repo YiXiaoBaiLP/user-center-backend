@@ -3,7 +3,9 @@ package buzz.yixiaobai.usercenter.service.impl;
 import buzz.yixiaobai.usercenter.mapper.UserMapper;
 import buzz.yixiaobai.usercenter.model.domain.User;
 import buzz.yixiaobai.usercenter.service.UserService;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static buzz.yixiaobai.usercenter.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * @author yixiaobai
@@ -31,11 +38,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      */
     static final String SALT = "xiaoliu";
 
-    /**
-     * 用户登录态键
-     */
-    static final String USER_LOGIN_STATE = "userLoginState";
-
     @Autowired
     private UserMapper userMapper;
 
@@ -51,7 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if(matcher.find()) return -1;
         // 密码和校验密码是否相同
-        if(StringUtils.equals(userPassword, checkPassword))return -1;
+        if(!StringUtils.equals(userPassword, checkPassword)) return -1;
         // 账户不能重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
@@ -113,10 +115,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setPhone(user.getPhone());
         safetyUser.setEmail(user.getEmail());
         safetyUser.setUserStatus(user.getUserStatus());
+        safetyUser.setUserRole(user.getUserRole());
         safetyUser.setCreateTime(user.getCreateTime());
         // 4. 记录用户登录状态
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
         // 返回添加的用户信息
         return safetyUser;
+    }
+
+    /**
+     * 查询用户信息
+     * @param username 用户名称
+     * @return 用户集合
+     */
+    @Override
+    public List<User> searchUserList(String username) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(username), User::getUsername, username);
+        List<User> users = userMapper.selectList(queryWrapper);
+        if(ObjectUtil.isEmpty(users)) return new ArrayList<>();
+        return users.stream().peek(user -> user.setUserRole(null)).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据ID删除用户信息
+     * @param userId 用户ID 信息
+     * @return 是否删除成功
+     */
+    @Override
+    public boolean deleteUserById(Long userId) {
+        if(ObjectUtils.isEmpty(userId)) return false;
+        int isDelete = userMapper.deleteById(userId);
+        return isDelete > 0;
     }
 }

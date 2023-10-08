@@ -5,6 +5,8 @@ import buzz.yixiaobai.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
+
 /**
  * 用户服务
  *
@@ -31,4 +33,18 @@ public interface UserService extends IService<User> {
      * @return 用户信息
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 通过用户名称来查询用户信息
+     * @param username 用户名称
+     * @return 用户集合
+     */
+    List<User> searchUserList(String username);
+
+    /**
+     * 根据用户id来删除用户信息
+     * @param userId 用户ID 信息
+     * @return 是否删除成功
+     */
+    boolean deleteUserById(Long userId);
 }
