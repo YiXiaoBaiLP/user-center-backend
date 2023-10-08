@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="generator.mapper.UserMapper">
+<mapper namespace="buzz.yixiaobai.usercenter.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="buzz.yixiaobai.usercenter.model.domain.User">
             <id property="id" column="id" jdbcType="BIGINT"/>
@@ -15,6 +15,7 @@
             <result property="phone" column="phone" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="userStatus" column="userStatus" jdbcType="TINYINT"/>
+            <result property="userRole" column="userRole" jdbcType="TINYINT"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
@@ -24,7 +25,7 @@
         id,userAccount,username,
         gender,avatarUrl,age,
         userPassword,phone,email,
-        userStatus,createTime,updateTime,
+        userStatus, role, createTime,updateTime,
         isDelete
     </sql>
 </mapper>

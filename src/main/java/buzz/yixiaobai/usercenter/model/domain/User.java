@@ -96,6 +96,12 @@ public class User implements Serializable {
     private Date updateTime;
 
     /**
+     * 角色
+     */
+    @TableField("userRole")
+    private Integer userRole;
+
+    /**
      * 是否删除
      */
     @TableField("isDelete")
