@@ -105,18 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         // 3. 用户脱敏
-        User safetyUser = new User();
-        safetyUser.setId(user.getId());
-        safetyUser.setUserAccount(user.getUserAccount());
-        safetyUser.setUsername(user.getUsername());
-        safetyUser.setGender(user.getGender());
-        safetyUser.setAvatarUrl(user.getAvatarUrl());
-        safetyUser.setAge(user.getAge());
-        safetyUser.setPhone(user.getPhone());
-        safetyUser.setEmail(user.getEmail());
-        safetyUser.setUserStatus(user.getUserStatus());
-        safetyUser.setUserRole(user.getUserRole());
-        safetyUser.setCreateTime(user.getCreateTime());
+        User safetyUser = this.getSafetyUser(user);
         // 4. 记录用户登录状态
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
         // 返回添加的用户信息
@@ -147,5 +136,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if(ObjectUtils.isEmpty(userId)) return false;
         int isDelete = userMapper.deleteById(userId);
         return isDelete > 0;
+    }
+
+    /**
+     * 用户数据脱敏
+     * @param originUser 需要脱敏的用户数据
+     * @return 脱敏后的用户信息
+     */
+    @Override
+    public User getSafetyUser(User originUser) {
+        if(ObjectUtil.isEmpty(originUser)) return null;
+        User safetyUser = new User();
+        safetyUser.setId(originUser.getId());
+        safetyUser.setUserAccount(originUser.getUserAccount());
+        safetyUser.setUsername(originUser.getUsername());
+        safetyUser.setGender(originUser.getGender());
+        safetyUser.setAvatarUrl(originUser.getAvatarUrl());
+        safetyUser.setAge(originUser.getAge());
+        safetyUser.setPhone(originUser.getPhone());
+        safetyUser.setEmail(originUser.getEmail());
+        safetyUser.setUserStatus(originUser.getUserStatus());
+        safetyUser.setUserRole(originUser.getUserRole());
+        safetyUser.setCreateTime(originUser.getCreateTime());
+        return safetyUser;
     }
 }

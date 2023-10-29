@@ -8,6 +8,7 @@ import cn.hutool.core.util.ObjectUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -61,6 +62,22 @@ public class UserController {
         return user;
     }
 
+    /**
+     * 获取用户的登录信息
+     * @param request 请求信息
+     * @return 用户信息
+     */
+    @GetMapping("/current")
+    public User getCurrentUser(HttpServletRequest request){
+        User userCurrent = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if(ObjectUtils.isEmpty(userCurrent)) return null;
+        // 获取到用户id
+        Long id = userCurrent.getId();
+        // TODO: 校验用户是否合法
+        User user = userService.lambdaQuery().ge(User::getId, id).one();
+        // 用户数据脱敏
+        return userService.getSafetyUser(user);
+    }
     /**
      * 查询用户
      * @param username 用户名称
