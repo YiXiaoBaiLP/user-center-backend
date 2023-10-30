@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static buzz.yixiaobai.usercenter.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -133,7 +132,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.like(StringUtils.isNotBlank(username), User::getUsername, username);
         List<User> users = userMapper.selectList(queryWrapper);
         if (ObjectUtil.isEmpty(users)) return new ArrayList<>();
-        return users.stream().peek(user -> user.setUserRole(null)).collect(Collectors.toList());
+//        return users.stream().peek(user -> user.setUserRole(null)).collect(Collectors.toList());
+        return users;
     }
 
     /**
