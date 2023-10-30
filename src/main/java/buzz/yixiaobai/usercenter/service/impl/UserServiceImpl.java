@@ -1,5 +1,6 @@
 package buzz.yixiaobai.usercenter.service.impl;
 
+import buzz.yixiaobai.usercenter.domain.convert.struct.UserStruct;
 import buzz.yixiaobai.usercenter.mapper.UserMapper;
 import buzz.yixiaobai.usercenter.model.domain.User;
 import buzz.yixiaobai.usercenter.service.UserService;
@@ -8,6 +9,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +36,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
     /**
+     * 用户转换类
+     */
+    @Resource
+    private UserStruct userStruct;
+
+    /**
      * 加密盐，混淆密码
      */
     static final String SALT = "xiaoliu";
@@ -46,19 +54,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword))
             return -1;
-        if(userAccount.length() < 4) return -1;
-        if(userPassword.length() < 8 || checkPassword.length() < 8)return -1;
+        if (userAccount.length() < 4) return -1;
+        if (userPassword.length() < 8 || checkPassword.length() < 8) return -1;
         // 账户不能包含特殊字符
         String validPattern = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
-        if(matcher.find()) return -1;
+        if (matcher.find()) return -1;
         // 密码和校验密码是否相同
-        if(!StringUtils.equals(userPassword, checkPassword)) return -1;
+        if (!StringUtils.equals(userPassword, checkPassword)) return -1;
         // 账户不能重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         long count = userMapper.selectCount(queryWrapper);
-        if(count>0) return -1;
+        if (count > 0) return -1;
         // 2. 加密
         // 加密盐
         String encryptPassword = DigestUtil.md5Hex((SALT + userPassword).getBytes());
@@ -69,14 +77,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserPassword(encryptPassword);
         // 保存数据
         boolean saveResult = this.save(user);
-        if(!saveResult) return -1;
+        if (!saveResult) return -1;
         // 返回添加的用户ID
         return user.getId();
     }
 
     /**
      * 登录
-     * @param userAccount 用户名
+     *
+     * @param userAccount  用户名
      * @param userPassword 用户密码
      * @return 登录用户信息
      */
@@ -85,12 +94,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword))
             return null;
-        if(userAccount.length() < 4) return null;
-        if(userPassword.length() < 8)return null;
+        if (userAccount.length() < 4) return null;
+        if (userPassword.length() < 8) return null;
         // 账户不能包含特殊字符
         String validPattern = "\\pP|\\pS|\\s+";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
-        if(matcher.find()) return null;
+        if (matcher.find()) return null;
         // 2. 加密
         // 加密盐
         String encryptPassword = DigestUtil.md5Hex((SALT + userPassword).getBytes());
@@ -100,7 +109,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq("userPassword", encryptPassword);
         User user = userMapper.selectOne(queryWrapper);
         // 用户不存在
-        if(ObjectUtils.isEmpty(user)) {
+        if (ObjectUtils.isEmpty(user)) {
             log.info("User login failed, userAccount cannot match userPassword!");
             return null;
         }
@@ -114,6 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     /**
      * 查询用户信息
+     *
      * @param username 用户名称
      * @return 用户集合
      */
@@ -122,42 +132,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotBlank(username), User::getUsername, username);
         List<User> users = userMapper.selectList(queryWrapper);
-        if(ObjectUtil.isEmpty(users)) return new ArrayList<>();
+        if (ObjectUtil.isEmpty(users)) return new ArrayList<>();
         return users.stream().peek(user -> user.setUserRole(null)).collect(Collectors.toList());
     }
 
     /**
      * 根据ID删除用户信息
+     *
      * @param userId 用户ID 信息
      * @return 是否删除成功
      */
     @Override
     public boolean deleteUserById(Long userId) {
-        if(ObjectUtils.isEmpty(userId)) return false;
+        if (ObjectUtils.isEmpty(userId)) return false;
         int isDelete = userMapper.deleteById(userId);
         return isDelete > 0;
     }
 
     /**
      * 用户数据脱敏
+     *
      * @param originUser 需要脱敏的用户数据
      * @return 脱敏后的用户信息
      */
     @Override
     public User getSafetyUser(User originUser) {
-        if(ObjectUtil.isEmpty(originUser)) return null;
-        User safetyUser = new User();
-        safetyUser.setId(originUser.getId());
-        safetyUser.setUserAccount(originUser.getUserAccount());
-        safetyUser.setUsername(originUser.getUsername());
-        safetyUser.setGender(originUser.getGender());
-        safetyUser.setAvatarUrl(originUser.getAvatarUrl());
-        safetyUser.setAge(originUser.getAge());
-        safetyUser.setPhone(originUser.getPhone());
-        safetyUser.setEmail(originUser.getEmail());
-        safetyUser.setUserStatus(originUser.getUserStatus());
-        safetyUser.setUserRole(originUser.getUserRole());
-        safetyUser.setCreateTime(originUser.getCreateTime());
-        return safetyUser;
+        if (ObjectUtil.isEmpty(originUser)) return null;
+        return userStruct.convertUser(originUser);
     }
 }

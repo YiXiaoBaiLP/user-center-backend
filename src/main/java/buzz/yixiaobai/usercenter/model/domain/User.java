@@ -14,12 +14,13 @@ import java.util.Date;
 
 /**
  * 用户实体类
+ *
+ * @author yixiaobai
  * @Date 2023年10月7日 22点46分
  * @TableName user
- * @author yixiaobai
  */
 @Data
-@TableName(value ="user")
+@TableName(value = "user")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {

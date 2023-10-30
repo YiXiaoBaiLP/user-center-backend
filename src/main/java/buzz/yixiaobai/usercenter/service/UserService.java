@@ -1,6 +1,5 @@
 package buzz.yixiaobai.usercenter.service;
 
-
 import buzz.yixiaobai.usercenter.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,8 +17,9 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户注册
-     * @param userAccount 登录用户名
-     * @param userPassword 用户密码
+     *
+     * @param userAccount   登录用户名
+     * @param userPassword  用户密码
      * @param checkPassword 校验密码
      * @return 新用户ID
      */
@@ -27,15 +27,17 @@ public interface UserService extends IService<User> {
 
     /**
      * 登录
-     * @param userAccount 用户名
+     *
+     * @param userAccount  用户名
      * @param userPassword 用户密码
-     * @param request request 请求信息
+     * @param request      request 请求信息
      * @return 用户信息
      */
     User userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
     /**
      * 通过用户名称来查询用户信息
+     *
      * @param username 用户名称
      * @return 用户集合
      */
@@ -43,6 +45,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 根据用户id来删除用户信息
+     *
      * @param userId 用户ID 信息
      * @return 是否删除成功
      */
@@ -50,6 +53,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户数据脱敏
+     *
      * @param originUser 需要脱敏的用户数据
      * @return 脱敏后的用户信息
      */
