@@ -103,6 +103,12 @@ public class User implements Serializable {
     private Integer userRole;
 
     /**
+     * 编号
+     */
+    @TableField("planetCode")
+    private String planetCode;
+
+    /**
      * 是否删除
      */
     @TableField("isDelete")

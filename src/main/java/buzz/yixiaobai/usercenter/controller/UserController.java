@@ -5,6 +5,7 @@ import buzz.yixiaobai.usercenter.model.request.UserLoginRequest;
 import buzz.yixiaobai.usercenter.model.request.UserRegisterRequest;
 import buzz.yixiaobai.usercenter.service.UserService;
 import cn.hutool.core.util.ObjectUtil;
+import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -40,13 +41,16 @@ public class UserController {
         String checkUserPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkUserPassword))
             return null;
-        return userService.userRegister(userAccount, userPassword, checkUserPassword);
+        return userService.userRegister(userRegisterRequest);
     }
 
     /**
-     * @param userLoginRequest
+     * 用户登录
+     * @param userLoginRequest  用户登录参数
+     * @param request 用户登录请求
      * @return
      */
+    @ApiOperation("用户登录")
     @PostMapping("/login")
     public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (ObjectUtil.isEmpty(userLoginRequest))
@@ -55,10 +59,21 @@ public class UserController {
         String userPassword = userLoginRequest.getUserPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword))
             return null;
-        User user = userService.userLogin(userAccount, userPassword, request);
+        User user = userService.userLogin(userLoginRequest, request);
         if (ObjectUtil.isEmpty(user))
             return null;
         return user;
+    }
+
+    /**
+     * 退出登录
+     * @param request 用户登录请求
+     * @return 退出是否成功
+     */
+    @ApiOperation("退出登录")
+    @PostMapping("/outLogin")
+    public void userLogout(HttpServletRequest request) {
+        userService.userLogout(request);
     }
 
     /**

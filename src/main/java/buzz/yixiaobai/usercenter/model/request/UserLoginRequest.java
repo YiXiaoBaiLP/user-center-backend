@@ -26,4 +26,9 @@ public class UserLoginRequest implements Serializable {
      * 用户密码
      */
     private String userPassword;
+
+    /**
+     * 编号
+     */
+    private String planetCode;
 }

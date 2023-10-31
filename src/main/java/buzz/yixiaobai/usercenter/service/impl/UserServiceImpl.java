@@ -3,6 +3,8 @@ package buzz.yixiaobai.usercenter.service.impl;
 import buzz.yixiaobai.usercenter.domain.convert.struct.UserStruct;
 import buzz.yixiaobai.usercenter.mapper.UserMapper;
 import buzz.yixiaobai.usercenter.model.domain.User;
+import buzz.yixiaobai.usercenter.model.request.UserLoginRequest;
+import buzz.yixiaobai.usercenter.model.request.UserRegisterRequest;
 import buzz.yixiaobai.usercenter.service.UserService;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -49,9 +51,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserMapper userMapper;
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(UserRegisterRequest userRegisterRequest) {
+        String userAccount = userRegisterRequest.getUserAccount();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String planetCode = userRegisterRequest.getPlanetCode();
         // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword))
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, planetCode))
             return -1;
         if (userAccount.length() < 4) return -1;
         if (userPassword.length() < 8 || checkPassword.length() < 8) return -1;
@@ -84,12 +90,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 登录
      *
-     * @param userAccount  用户名
-     * @param userPassword 用户密码
+     * @param userLoginRequest 用户请求参数
+     * @param request 登录请求
      * @return 登录用户信息
      */
     @Override
-    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public User userLogin(UserLoginRequest userLoginRequest, HttpServletRequest request) {
+        String userPassword = userLoginRequest.getUserPassword();
+        String userAccount = userLoginRequest.getUserAccount();
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword))
             return null;
@@ -118,6 +126,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
         // 返回添加的用户信息
         return safetyUser;
+    }
+
+    @Override
+    public void userLogout(HttpServletRequest request) {
+        // 移除登录态
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
     }
 
     /**
