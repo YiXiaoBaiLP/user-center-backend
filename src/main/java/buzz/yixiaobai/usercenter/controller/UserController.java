@@ -32,6 +32,11 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    /**
+     * 用户注册
+     * @param userRegisterRequest 用户注册信息
+     * @return 注册用户编号
+     */
     @PostMapping("/register")
     public Long userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (ObjectUtil.isEmpty(userRegisterRequest))
@@ -89,7 +94,7 @@ public class UserController {
         // 获取到用户id
         Long id = userCurrent.getId();
         // TODO: 校验用户是否合法
-        User user = userService.lambdaQuery().ge(User::getId, id).one();
+        User user = userService.lambdaQuery().eq(User::getId, id).one();
         // 用户数据脱敏
         return userService.getSafetyUser(user);
     }
