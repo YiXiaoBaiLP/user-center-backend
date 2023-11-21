@@ -1,5 +1,7 @@
 package buzz.yixiaobai.usercenter.controller;
 
+import buzz.yixiaobai.usercenter.common.BaseResponse;
+import buzz.yixiaobai.usercenter.common.Utils.ResultUtils;
 import buzz.yixiaobai.usercenter.model.domain.User;
 import buzz.yixiaobai.usercenter.model.request.UserLoginRequest;
 import buzz.yixiaobai.usercenter.model.request.UserRegisterRequest;
@@ -12,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,11 +35,12 @@ public class UserController {
 
     /**
      * 用户注册
+     *
      * @param userRegisterRequest 用户注册信息
      * @return 注册用户编号
      */
     @PostMapping("/register")
-    public Long userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (ObjectUtil.isEmpty(userRegisterRequest))
             return null;
         String userAccount = userRegisterRequest.getUserAccount();
@@ -46,18 +48,20 @@ public class UserController {
         String checkUserPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkUserPassword))
             return null;
-        return userService.userRegister(userRegisterRequest);
+        long userId = userService.userRegister(userRegisterRequest);
+        return ResultUtils.success(userId);
     }
 
     /**
      * 用户登录
-     * @param userLoginRequest  用户登录参数
-     * @param request 用户登录请求
+     *
+     * @param userLoginRequest 用户登录参数
+     * @param request          用户登录请求
      * @return
      */
     @ApiOperation("用户登录")
     @PostMapping("/login")
-    public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (ObjectUtil.isEmpty(userLoginRequest))
             return null;
         String userAccount = userLoginRequest.getUserAccount();
@@ -67,11 +71,12 @@ public class UserController {
         User user = userService.userLogin(userLoginRequest, request);
         if (ObjectUtil.isEmpty(user))
             return null;
-        return user;
+        return ResultUtils.success(user);
     }
 
     /**
      * 退出登录
+     *
      * @param request 用户登录请求
      * @return 退出是否成功
      */
@@ -88,7 +93,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/current")
-    public User getCurrentUser(HttpServletRequest request) {
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
         User userCurrent = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
         if (ObjectUtils.isEmpty(userCurrent)) return null;
         // 获取到用户id
@@ -96,7 +101,8 @@ public class UserController {
         // TODO: 校验用户是否合法
         User user = userService.lambdaQuery().eq(User::getId, id).one();
         // 用户数据脱敏
-        return userService.getSafetyUser(user);
+        User safetyUser = userService.getSafetyUser(user);
+        return ResultUtils.success(safetyUser);
     }
 
     /**
@@ -106,11 +112,12 @@ public class UserController {
      * @return 用户集合
      */
     @GetMapping("/search")
-    public List<User> searchUserList(String username, HttpServletRequest request) {
+    public BaseResponse<List<User>> searchUserList(String username, HttpServletRequest request) {
         if (this.isAdmin(request)) {
-            return new ArrayList<>();
+            return null;
         }
-        return userService.searchUserList(username);
+        List<User> resultList = userService.searchUserList(username);
+        return ResultUtils.success(resultList);
     }
 
     /**
@@ -120,9 +127,10 @@ public class UserController {
      * @return 是否删除成功
      */
     @DeleteMapping
-    public boolean deleteUser(@RequestBody Long userId, HttpServletRequest request) {
-        if (this.isAdmin(request)) return false;
-        return userService.deleteUserById(userId);
+    public BaseResponse<Boolean> deleteUser(@RequestBody Long userId, HttpServletRequest request) {
+        if (this.isAdmin(request)) return null;
+        boolean result = userService.deleteUserById(userId);
+        return ResultUtils.success(result);
     }
 
     /**
