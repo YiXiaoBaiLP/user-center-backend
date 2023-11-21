@@ -10,6 +10,6 @@ import buzz.yixiaobai.usercenter.common.BaseResponse;
 public class ResultUtils {
 
     public static <T>BaseResponse<T> success(T data){
-        return new BaseResponse<>(0, data, "ok");
+        return new BaseResponse<>(20000, data, "ok");
     }
 }
