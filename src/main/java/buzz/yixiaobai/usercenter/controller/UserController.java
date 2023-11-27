@@ -1,7 +1,9 @@
 package buzz.yixiaobai.usercenter.controller;
 
 import buzz.yixiaobai.usercenter.common.BaseResponse;
+import buzz.yixiaobai.usercenter.common.ErrorCode;
 import buzz.yixiaobai.usercenter.common.Utils.ResultUtils;
+import buzz.yixiaobai.usercenter.exception.BusinessException;
 import buzz.yixiaobai.usercenter.model.domain.User;
 import buzz.yixiaobai.usercenter.model.request.UserLoginRequest;
 import buzz.yixiaobai.usercenter.model.request.UserRegisterRequest;
@@ -42,7 +44,7 @@ public class UserController {
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (ObjectUtil.isEmpty(userRegisterRequest))
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkUserPassword = userRegisterRequest.getCheckPassword();

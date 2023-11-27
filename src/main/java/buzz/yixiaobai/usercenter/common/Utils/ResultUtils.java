@@ -29,4 +29,18 @@ public class ResultUtils {
     public static <T> BaseResponse<T> error(ErrorCode errorCode) {
         return new BaseResponse<>(errorCode);
     }
+
+    /**
+     * 失败
+     * @param errorCode
+     * @return
+     * @param <T>
+     */
+    public static <T> BaseResponse<T> error(ErrorCode errorCode, String message, String description) {
+        return new BaseResponse<>(errorCode, message, description);
+    }
+
+    public static <T> BaseResponse<T> error(int code, String message, String description) {
+        return new BaseResponse<>(code, message, description);
+    }
 }
