@@ -9,9 +9,11 @@ import buzz.yixiaobai.usercenter.model.request.UserLoginRequest;
 import buzz.yixiaobai.usercenter.model.request.UserRegisterRequest;
 import buzz.yixiaobai.usercenter.service.UserService;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,7 @@ import static buzz.yixiaobai.usercenter.constant.UserConstant.USER_LOGIN_STATE;
  * @author yixiaobai
  * @date 2023/10/07 23:45:42
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -43,13 +46,14 @@ public class UserController {
      */
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+        log.info("用户注册接口 入参：{}", JSONUtil.toJsonStr(userRegisterRequest));
         if (ObjectUtil.isEmpty(userRegisterRequest))
             throw new BusinessException(ErrorCode.NULL_ERROR);
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkUserPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkUserPassword))
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         long userId = userService.userRegister(userRegisterRequest);
         return ResultUtils.success(userId);
     }
